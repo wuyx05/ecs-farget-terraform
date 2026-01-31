@@ -20,7 +20,7 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -52,9 +52,12 @@ jobs:
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
         echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
-    # - name: Force new deployment
-    #   run: |
-    #     aws ecs update-service --cluster $ECS_CLUSTER \
-    #                           --service $ECS_SERVICE \
-    #                           --force-new-deployment
-    
+    - name: Force new deployment
+      run: |
+        aws ecs update-service --cluster $ECS_CLUSTER \
+                              --service $ECS_SERVICE \
+                              --force-new-deployment
+    - name: Terraform Destroy
+      working-directory: ./terraform
+      run: terraform destroy -auto-approve
+
